@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- Basic Meta Tags -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+
+  <!-- SEO & Social Sharing Meta Tags -->
+  <title>Offline Invoice Generator – Anywhere</title>
+  <meta name="description"
+    content="Simple, Offline Invoice Generator. Add, edit, and view your expenses with category icons and sync status. Works without internet." />
+  <meta name="keywords" content="expense Generator, offline app, personal finance, budget Generator, expense manager" />
+  <meta name="author" content="Your Name or Company" />
+
+  <!-- Open Graph (Facebook, LinkedIn, etc.) -->
+  <meta property="og:title" content="Offline Invoice Generator" />
+  <meta property="og:description" content="Track your expenses offline with ease. Simple, fast, and privacy-focused." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://pocket-Generator-woad.vercel.app" /> <!-- Replace with your actual URL -->
+  <meta property="og:image" content="/og-image.png" /> <!-- Add a 1200x630 image in public/ -->
+
+  <!-- Twitter Cards -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Offline Invoice Generator" />
+  <meta name="twitter:description" content="Track expenses offline with category icons and sync status." />
+  <meta name="twitter:image" content="/og-image.png" />
+
+  <!-- PWA Manifest & Icons -->
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="apple-touch-icon" href="/pwa-192x192.png" />
+  <meta name="theme-color" content="#2563eb" />
+  <meta name="mobile-web-app-capable" content="yes">
+
+  <!-- Preload critical assets (optional but improves LCP) -->
+  <link rel="preload" href="/src/main.tsx" as="script" />
+
+  <!-- Theme handling script (kept as is) -->
+  <script>
+    (function () {
+      const theme = localStorage.getItem("theme");
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+      if (theme === "dark" || (!theme && prefersDark)) {
+        document.documentElement.classList.add("dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+      }
+    })();
+  </script>
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
+</html>
