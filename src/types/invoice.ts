@@ -1,3 +1,4 @@
+import type { InvoiceTemplateKey } from "./invoiceTemplates";
 import type { TaxConfig } from "./tax";
 
 export type CurrencyCode = "INR" | "USD" | "EUR" | "GBP" | "AED" | "SAR";
@@ -44,6 +45,12 @@ export interface Invoice {
     total: number;
   };
 
+  // new logo
+  template: InvoiceTemplateKey;
+  logo?: {
+    blob: Blob; // actual image data
+    type: string; // image/png, image/jpeg
+  };
   qrEnabled: boolean;
   createdAt: number;
 }

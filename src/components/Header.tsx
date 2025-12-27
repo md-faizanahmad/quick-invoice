@@ -23,7 +23,7 @@ export default function Header() {
             {/* Brand + Time */}
             <div className="flex flex-col">
               <h1 className="text-2xl cursor-pointer font-poppins font-bold bg-linear-to-r  to-sky-600 from-blue-400  bg-clip-text text-transparent">
-                <Link to="/"> GST Invoice</Link>
+                <Link to="/"> QuickInvoice</Link>
               </h1>
               <span className="text-xs text-gray-500 ">
                 {time.toLocaleDateString("en-US", {

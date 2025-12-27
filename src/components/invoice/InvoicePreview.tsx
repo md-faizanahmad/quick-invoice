@@ -14,7 +14,7 @@ const fadeIn = {
 
 export default function InvoicePreview({ invoice }: Props) {
   const symbol = CURRENCY_SYMBOLS[invoice.currency.code];
-
+  const logoUrl = invoice.logo ? URL.createObjectURL(invoice.logo.blob) : null;
   return (
     <motion.div
       initial="hidden"
@@ -52,7 +52,21 @@ export default function InvoicePreview({ invoice }: Props) {
       </div>
 
       {/* Parties */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 p-5 sm:p-6 border-b border-sky-100">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 p-5 sm:p-6 border-b border-sky-100">
+        <div>
+          <h3 className="text-sm font-semibold text-slate-800 mb-2">
+            {" "}
+            Seller Logo
+          </h3>
+          {logoUrl && (
+            <img
+              src={logoUrl}
+              alt="Invoice Logo"
+              className="h-14 max-w-40 object-contain"
+              onLoad={() => URL.revokeObjectURL(logoUrl)}
+            />
+          )}
+        </div>
         <div>
           <h3 className="text-sm font-semibold text-slate-800 mb-2">Seller</h3>
           <p className="font-medium text-slate-900">{invoice.seller.name}</p>

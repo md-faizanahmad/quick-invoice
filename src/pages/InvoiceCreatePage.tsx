@@ -16,9 +16,11 @@ import SellerSection from "../components/invoice/SellerSection";
 import CustomerSection from "../components/invoice/CustomerSection";
 import ItemsSection from "../components/invoice/ItemsSection";
 import TotalsSection from "../components/invoice/TotalsSection";
-import InvoiceList from "../components/invoice/InvoiceList"; // Uncommented & used
+import InvoiceList from "../components/invoice/InvoiceList";
 import { saveInvoice } from "../lib/db/invoiceRepo";
 import { generateInvoiceNumber } from "../utils/generateInvoiceNumber";
+import InvoiceTemplateSelector from "../components/InvoiceTemplate/InvoiceTemplateSelector";
+import InvoiceLogoUploader from "../components/InvoiceTemplate/InvoiceLogoUploader";
 
 // Animation variants
 const containerVariants = {
@@ -42,14 +44,12 @@ export default function InvoiceCreatePage() {
   );
   const [errors, setErrors] = useState<ValidationErrors>({});
 
-  /* Preset change handler */
   const handlePresetChange = (key: InvoicePresetKey) => {
     setPresetKey(key);
     setInvoice(createEmptyInvoice(key));
     setErrors({});
   };
 
-  /* Centralized invoice updater */
   const updateInvoice = (updater: (prev: Invoice) => Invoice) => {
     setInvoice((prev) => {
       const updated = updater(prev);
@@ -60,7 +60,6 @@ export default function InvoiceCreatePage() {
     });
   };
 
-  /* Generate invoice */
   const handleGenerate = async () => {
     const validationErrors = validateInvoice(invoice);
     if (Object.keys(validationErrors).length > 0) {
@@ -86,42 +85,59 @@ export default function InvoiceCreatePage() {
       variants={containerVariants}
       className="min-h-screen bg-gray-50 px-4 py-6 sm:px-6 lg:px-8"
     >
-      {/* Header Bar with Back Button */}
-      <div className="mb-6 flex items-center justify-between">
+      {/* Top Bar - Sticky on mobile */}
+      <div className="sticky top-0 z-10 mb-8 flex items-center justify-between bg-gray-50/90 backdrop-blur-sm py-4 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
         <motion.div variants={itemVariants}>
           <Link
             to="/"
-            className="flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm hover:bg-gray-50 border border-gray-200 transition"
+            className="flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-gray-50 border border-gray-200 transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
-            Back to Home
+            Back
           </Link>
         </motion.div>
 
         <motion.div variants={itemVariants}>
           <button
             onClick={handleGenerate}
-            className="flex items-center gap-2 rounded-xl bg-sky-600 px-5 py-2.5 text-sm font-medium text-white shadow-md hover:bg-sky-700 transition"
+            className="flex items-center gap-2 rounded-lg bg-sky-600 px-5 py-2 text-sm font-medium text-white shadow hover:bg-sky-700 transition-colors"
           >
             <Save className="h-4 w-4" />
-            Generate Invoice
+            Generate
           </button>
         </motion.div>
       </div>
 
-      <div className="mx-auto max-w-4xl space-y-6">
-        {/* Main Form */}
-        <div className="grid gap-6 lg:grid-cols-2">
-          <motion.div variants={itemVariants}>
-            <InvoiceHeader invoice={invoice} setInvoice={updateInvoice} />
-          </motion.div>
-
+      <div className="mx-auto max-w-5xl space-y-8">
+        {/* 1. Preset + Invoice Header (global choices first) */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <motion.div variants={itemVariants}>
             <PresetSelector value={presetKey} onChange={handlePresetChange} />
           </motion.div>
+          <motion.div variants={itemVariants}>
+            <InvoiceHeader invoice={invoice} setInvoice={updateInvoice} />
+          </motion.div>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-2">
+        {/* 2. Template + Logo - aligned side by side on larger screens */}
+        <motion.div
+          variants={itemVariants}
+          className="bg-white rounded-xl shadow-sm border border-gray-200 p-6"
+        >
+          <h3 className="mb-5 text-lg font-semibold text-slate-800">
+            Invoice Design
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <InvoiceTemplateSelector
+              invoice={invoice}
+              setInvoice={updateInvoice}
+            />
+            <InvoiceLogoUploader invoice={invoice} setInvoice={updateInvoice} />
+          </div>
+        </motion.div>
+
+        {/* 3. Seller + Customer */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <motion.div variants={itemVariants}>
             <SellerSection
               invoice={invoice}
@@ -129,7 +145,6 @@ export default function InvoiceCreatePage() {
               errors={errors}
             />
           </motion.div>
-
           <motion.div variants={itemVariants}>
             <CustomerSection
               invoice={invoice}
@@ -139,6 +154,7 @@ export default function InvoiceCreatePage() {
           </motion.div>
         </div>
 
+        {/* 4. Items */}
         <motion.div variants={itemVariants}>
           <ItemsSection
             invoice={invoice}
@@ -147,35 +163,40 @@ export default function InvoiceCreatePage() {
           />
         </motion.div>
 
+        {/* 5. Totals */}
         <motion.div variants={itemVariants}>
           <TotalsSection invoice={invoice} setInvoice={updateInvoice} />
         </motion.div>
 
-        {/* Action Buttons (bottom) */}
+        {/* 6. Bottom Actions */}
         <motion.div
           variants={itemVariants}
-          className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end"
+          className="flex flex-col sm:flex-row sm:justify-end gap-4 pt-6 border-t border-gray-200"
         >
           <button
             onClick={() => navigate("/")}
-            className="rounded-xl border border-gray-300 px-6 py-3 text-sm font-medium text-slate-700 hover:bg-gray-50 transition"
+            className="rounded-lg border border-gray-300 px-6 py-3 text-sm font-medium text-slate-700 hover:bg-gray-50 transition-colors"
           >
             Cancel
           </button>
-
           <button
             onClick={handleGenerate}
-            className="rounded-xl bg-sky-600 px-6 py-3 text-sm font-medium text-white shadow-md hover:bg-sky-700 transition"
+            className="rounded-lg bg-sky-600 px-6 py-3 text-sm font-medium text-white shadow hover:bg-sky-700 transition-colors"
           >
             Generate & Save Invoice
           </button>
         </motion.div>
       </div>
 
-      {/* Recent Invoices Section */}
-      <motion.div variants={itemVariants} className="mx-auto max-w-4xl mt-12">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-xl font-bold text-slate-900">Recent Invoices</h2>
+      {/* Recent Invoices - separate section */}
+      <motion.section
+        variants={itemVariants}
+        className="mx-auto max-w-5xl mt-16"
+      >
+        <div className="mb-6 flex items-center justify-between">
+          <h2 className="text-xl font-semibold text-slate-900">
+            Recent Invoices
+          </h2>
           <Link
             to="/invoice/history"
             className="text-sm text-sky-600 hover:text-sky-700 hover:underline"
@@ -184,10 +205,10 @@ export default function InvoiceCreatePage() {
           </Link>
         </div>
 
-        <div className="rounded-2xl border border-sky-100 bg-white shadow-sm">
+        <div className="rounded-xl border border-sky-100 bg-white shadow-sm overflow-hidden">
           <InvoiceList />
         </div>
-      </motion.div>
+      </motion.section>
     </motion.div>
   );
 }

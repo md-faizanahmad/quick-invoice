@@ -9,6 +9,7 @@ import InvoiceEditPage from "./components/invoice/InvoiceEditPage";
 import Home from "./pages/HomePage";
 import InvoiceViewPage from "./pages/InvoiceViewPage";
 import InvoiceList from "./components/invoice/InvoiceList";
+import Footer from "./components/Footer";
 
 export default function App() {
   return (
@@ -34,6 +35,7 @@ export default function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
+      <Footer />
     </div>
   );
 }

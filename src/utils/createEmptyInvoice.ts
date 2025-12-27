@@ -7,6 +7,7 @@ export function createEmptyInvoice(presetKey: string): Invoice {
 
   return {
     id: crypto.randomUUID(),
+    template: "simple",
     invoiceNumber: "",
     presetKey: preset.key,
     tax: preset.tax,

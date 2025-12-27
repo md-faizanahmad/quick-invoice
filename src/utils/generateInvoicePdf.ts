@@ -4,6 +4,9 @@ import autoTable, { type UserOptions } from "jspdf-autotable";
 
 import QRCode from "qrcode";
 import type { Invoice, InvoiceItem } from "../types/invoice";
+import { blobToBase64 } from "./blobToBase64";
+import { INVOICE_TEMPLATES } from "../types/invoiceTemplates";
+import hexToRgb from "./hexToRgb";
 interface jsPDFWithPlugin extends jsPDF {
   autoTable: (options: UserOptions) => jsPDF;
   lastAutoTable: {
@@ -18,23 +21,60 @@ export async function generateInvoicePdf(invoice: Invoice): Promise<Blob> {
     format: "a4",
   }) as jsPDFWithPlugin;
 
+  const template = INVOICE_TEMPLATES[invoice.template];
+  const [r, g, b] = hexToRgb(template.colors.accent);
   const pageWidth = doc.internal.pageSize.getWidth();
   const margin = 35;
   const currY_start = 35;
   let currY = currY_start;
-
+  let logoWidthUsed;
   const { currency, seller, customer, totals } = invoice;
   const symbol = currency.code === "INR" ? "Rs. " : `${currency.code} `;
 
   // ===================== HEADER =====================
   // Company Info (Seller)
-  doc.setFont("times", "normal").setFontSize(20).setTextColor(26, 26, 26);
-  doc.text(seller.name, margin, currY + 20);
+  // ===================== HEADER (INLINE LOGO + SELLER) =====================
+
+  let logoWidth = 0;
+  const LOGO_MT = 6;
+
+  if (invoice.logo) {
+    const logoBase64 = await blobToBase64(invoice.logo.blob);
+    logoWidth = 50; // controls horizontal space
+    const logoHeight = 40;
+    const logoX = margin;
+    const logoY = currY + LOGO_MT;
+
+    // Border
+    doc
+      .setDrawColor(220)
+      .setLineWidth(0.5)
+      .rect(logoX - 2, logoY - 2, logoWidth + 4, logoHeight + 4);
+    doc.addImage(
+      logoBase64,
+      invoice.logo.type.includes("png") ? "PNG" : "JPEG",
+      logoX,
+      logoY,
+      logoWidth,
+      logoHeight
+    );
+    logoWidthUsed = logoWidth + 12;
+  }
+
+  // Seller text starts AFTER logo
+  const sellerX = margin + (logoWidthUsed ?? 0);
+  const sellerY = currY + 20;
+
+  doc.setFont("times", "normal").setFontSize(20).setTextColor(r, g, b);
+
+  doc.text(seller.name, sellerX, sellerY);
 
   doc.setFont("helvetica", "normal").setFontSize(9).setTextColor(68, 68, 68);
-  doc.text(seller.address, margin, currY + 35, { maxWidth: 250 });
+
+  doc.text(seller.address, sellerX, sellerY + 15, { maxWidth: 260 });
+
   if (seller.taxId) {
-    doc.text(`Tax ID: ${seller.taxId}`, margin, currY + 65);
+    doc.text(`GST NO: ${seller.taxId}`, sellerX, sellerY + 30);
   }
 
   // TAX INVOICE Box (Right Aligned)

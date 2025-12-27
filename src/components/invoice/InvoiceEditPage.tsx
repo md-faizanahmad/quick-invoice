@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import type { Invoice } from "../../types/invoice";
@@ -18,8 +19,22 @@ import CustomerSection from "../../components/invoice/CustomerSection";
 import ItemsSection from "../../components/invoice/ItemsSection";
 import TotalsSection from "../../components/invoice/TotalsSection";
 import InvoiceActions from "../../pages/InvoiceActions";
+import InvoiceTemplateSelector from "../InvoiceTemplate/InvoiceTemplateSelector";
+import InvoiceLogoUploader from "../InvoiceTemplate/InvoiceLogoUploader";
 
-/* ---------------------------------- */
+// Animation variants (same as create page for consistency)
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
+};
 
 export default function InvoiceEditPage() {
   const { id } = useParams<{ id: string }>();
@@ -30,7 +45,6 @@ export default function InvoiceEditPage() {
   const [confirmSave, setConfirmSave] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
-  /* ---------- Load invoice ---------- */
   useEffect(() => {
     if (!id) return;
     getInvoiceById(id).then((inv) => {
@@ -38,7 +52,6 @@ export default function InvoiceEditPage() {
     });
   }, [id]);
 
-  /* ---------- Central updater ---------- */
   const updateInvoice = (updater: (prev: Invoice) => Invoice) => {
     setInvoice((prev) => {
       if (!prev) return prev;
@@ -50,7 +63,6 @@ export default function InvoiceEditPage() {
     });
   };
 
-  /* ---------- Save flow ---------- */
   const handleSaveRequest = () => {
     if (!invoice) return;
 
@@ -72,7 +84,6 @@ export default function InvoiceEditPage() {
     navigate(`/invoice/view/${invoice.id}`);
   };
 
-  /* ---------- Delete flow ---------- */
   const handleConfirmDelete = async () => {
     if (!invoice) return;
     await deleteInvoice(invoice.id);
@@ -87,10 +98,18 @@ export default function InvoiceEditPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 px-4 py-6">
-      <div className="mx-auto max-w-4xl space-y-6">
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+      className="min-h-screen bg-gray-50 px-4 py-6 sm:px-6 lg:px-8"
+    >
+      <div className="mx-auto max-w-4xl space-y-8">
         {/* Top Bar */}
-        <div className="flex items-center justify-between">
+        <motion.div
+          variants={itemVariants}
+          className="flex items-center justify-between"
+        >
           <InvoiceActions
             invoice={invoice}
             showDownload={false}
@@ -101,50 +120,85 @@ export default function InvoiceEditPage() {
           />
 
           <span className="text-sm text-slate-500">Editing invoice</span>
+        </motion.div>
+
+        {/* Header */}
+        <motion.div variants={itemVariants}>
+          <InvoiceHeader invoice={invoice} setInvoice={updateInvoice} />
+        </motion.div>
+
+        {/* Template + Logo - grouped */}
+        <motion.div
+          variants={itemVariants}
+          className="bg-white rounded-xl shadow-sm border border-gray-200 p-6"
+        >
+          <h3 className="mb-5 text-lg font-semibold text-slate-800">
+            Invoice Design
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <InvoiceTemplateSelector
+              invoice={invoice}
+              setInvoice={updateInvoice}
+            />
+            <InvoiceLogoUploader invoice={invoice} setInvoice={updateInvoice} />
+          </div>
+        </motion.div>
+
+        {/* Seller + Customer */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <motion.div variants={itemVariants}>
+            <SellerSection
+              invoice={invoice}
+              setInvoice={updateInvoice}
+              errors={errors}
+            />
+          </motion.div>
+
+          <motion.div variants={itemVariants}>
+            <CustomerSection
+              invoice={invoice}
+              setInvoice={updateInvoice}
+              errors={errors}
+            />
+          </motion.div>
         </div>
 
-        {/* Sections */}
-        <InvoiceHeader invoice={invoice} setInvoice={updateInvoice} />
+        {/* Items */}
+        <motion.div variants={itemVariants}>
+          <ItemsSection
+            invoice={invoice}
+            setInvoice={updateInvoice}
+            errors={errors}
+          />
+        </motion.div>
 
-        <SellerSection
-          invoice={invoice}
-          setInvoice={updateInvoice}
-          errors={errors}
-        />
-
-        <CustomerSection
-          invoice={invoice}
-          setInvoice={updateInvoice}
-          errors={errors}
-        />
-
-        <ItemsSection
-          invoice={invoice}
-          setInvoice={updateInvoice}
-          errors={errors}
-        />
-
-        <TotalsSection invoice={invoice} setInvoice={updateInvoice} />
+        {/* Totals */}
+        <motion.div variants={itemVariants}>
+          <TotalsSection invoice={invoice} setInvoice={updateInvoice} />
+        </motion.div>
 
         {/* Actions */}
-        <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
+        <motion.div
+          variants={itemVariants}
+          className="flex flex-col-reverse gap-4 sm:flex-row sm:justify-between pt-6 border-t border-gray-200"
+        >
           <button
             onClick={() => setConfirmDelete(true)}
-            className="rounded-lg border border-red-500 px-5 py-3 text-red-600 hover:bg-red-50"
+            className="rounded-lg border border-red-500 px-5 py-3 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
           >
             Delete Invoice
           </button>
 
           <button
             onClick={handleSaveRequest}
-            className="rounded-lg bg-sky-600 px-6 py-3 font-medium text-white hover:bg-sky-700"
+            className="rounded-lg bg-sky-600 px-6 py-3 text-sm font-medium text-white hover:bg-sky-700 transition-colors"
           >
             Save Changes
           </button>
-        </div>
+        </motion.div>
       </div>
 
-      {/* ---------- Save Confirm Modal ---------- */}
+      {/* Save Confirm Modal */}
       {confirmSave && (
         <Modal
           title="Save changes?"
@@ -155,7 +209,7 @@ export default function InvoiceEditPage() {
         />
       )}
 
-      {/* ---------- Delete Confirm Modal ---------- */}
+      {/* Delete Confirm Modal */}
       {confirmDelete && (
         <Modal
           title="Delete invoice?"
@@ -166,14 +220,11 @@ export default function InvoiceEditPage() {
           confirmText="Delete"
         />
       )}
-    </div>
+    </motion.div>
   );
 }
 
-/* ========================================= */
-/* =============== MODAL ==================== */
-/* ========================================= */
-
+/* Modal Component */
 type ModalProps = {
   title: string;
   description: string;
@@ -193,21 +244,26 @@ function Modal({
 }: ModalProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-      <div className="w-full max-w-sm rounded-xl bg-white p-6 shadow-lg">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.95 }}
+        className="w-full max-w-sm rounded-xl bg-white p-6 shadow-2xl"
+      >
         <h3 className="text-lg font-semibold text-slate-900">{title}</h3>
         <p className="mt-2 text-sm text-slate-600">{description}</p>
 
         <div className="mt-6 flex justify-end gap-3">
           <button
             onClick={onCancel}
-            className="rounded-lg  border px-4 py-2 text-sm"
+            className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-gray-50 transition-colors"
           >
             Cancel
           </button>
 
           <button
             onClick={onConfirm}
-            className={`rounded-lg px-4 py-2 text-sm text-white ${
+            className={`rounded-lg px-4 py-2 text-sm font-medium text-white ${
               danger
                 ? "bg-red-600 hover:bg-red-700"
                 : "bg-sky-600 hover:bg-sky-700"
@@ -216,7 +272,7 @@ function Modal({
             {confirmText}
           </button>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
