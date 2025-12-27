@@ -3,7 +3,7 @@ import type { InvoiceTemplate } from "./invoiceTemplates";
 export const MODERN_TEMPLATE: InvoiceTemplate = {
   key: "modern",
   label: "Modern",
-
+  description: "Modern layout with accent colors and structured sections",
   layout: {
     header: "split",
     bordered: true,

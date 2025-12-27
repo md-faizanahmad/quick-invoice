@@ -3,7 +3,7 @@ import type { InvoiceTemplate } from "./invoiceTemplates";
 export const SIMPLE_TEMPLATE: InvoiceTemplate = {
   key: "simple",
   label: "Simple",
-
+  description: "Clean and minimal invoice with no heavy styling",
   layout: {
     header: "left",
     bordered: false,

@@ -3,7 +3,7 @@ import type { InvoiceTemplate } from "./invoiceTemplates";
 export const PREMIUM_TEMPLATE: InvoiceTemplate = {
   key: "premium",
   label: "Premium",
-
+  description: "Premium branded invoice with bold typography and highlights",
   layout: {
     header: "center",
     bordered: true,
