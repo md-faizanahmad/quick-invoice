@@ -1,85 +1,125 @@
 // src/components/Footer.tsx
+import { Mail, ExternalLink, Users, Shield, Zap } from "lucide-react";
+
 export default function Footer() {
   const currentYear = new Date().getFullYear();
   const yourEmail = "md.faizan.ahmad.web@gmail.com";
+
   return (
-    <footer className="bg-slate-900 text-slate-300 py-8 mt-auto">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
-          {/* Brand / Logo Section */}
-          <div>
-            <h3 className="text-lg font-semibold text-white mb-2">
-              Your Invoice App
-            </h3>
-            <p className="text-sm">Simple, fast, and beautiful invoicing.</p>
-            <p>
-              Create, manage and download professional invoices completely
-              offline. No account. No tracking. Your data stays with you.
+    <footer className="bg-white border-t border-gray-200 pt-16 pb-8 mt-20">
+      <div className="container mx-auto px-6 text-gray-600">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12 text-center md:text-left">
+          {/* Column 1: Quick Community Branding */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-center md:justify-start gap-2">
+              <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-100">
+                <Users size={20} />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 tracking-tight">
+                Quick Community
+              </h3>
+            </div>
+            <p className="text-sm leading-relaxed max-w-sm">
+              We provide professional financial tools like this{" "}
+              <strong>Offline Invoice Generator</strong> for free. As part of
+              the Quick Community, we prioritize your privacy—your data never
+              leaves your device.
             </p>
-            <p className="text-sm mt-3">
-              Questions? Reach us at{" "}
+          </div>
+
+          {/* Column 2: Our Free Services (Cross-Linking) */}
+          <div className="space-y-4">
+            <h4 className="font-bold text-gray-900 text-lg underline decoration-blue-500 underline-offset-8">
+              Free Services
+            </h4>
+            <ul className="space-y-4 text-sm">
+              <li className="group">
+                <a
+                  href="https://quicksuite.vercel.app"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 text-gray-700 hover:text-blue-600 font-semibold text-sm transition-colors"
+                >
+                  <ExternalLink
+                    size={16}
+                    className="text-blue-600 group-hover:text-blue-600"
+                  />
+                  <span className="text-blue-600 font-bold">
+                    1. Quick Suite
+                  </span>
+                </a>
+                <p className="text-xs  text-blue-600 ml-7">
+                  PDF, Images & OCR Engine
+                </p>
+              </li>
+              {/* Tool 1: Current Site */}
+              <li className="flex flex-col">
+                <a
+                  href="https://quickinvoices.vercel.app"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex items-center justify-center md:justify-start gap-2 hover:text-blue-600 transition-colors font-semibold text-gray-700"
+                >
+                  <Zap
+                    size={14}
+                    className="text-gray-400 group-hover:text-blue-600"
+                  />
+                  <span>2. QuickInvoice (Invoice)</span>
+                </a>
+                <span className="text-xs text-gray-400 ml-5">
+                  Professional PDF Invoicing
+                </span>
+              </li>
+
+              {/* Tool 2: Link back to Expense Tracker */}
+              <li>
+                <a
+                  href="https://quicktrack-navy.vercel.app"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex items-center justify-center md:justify-start gap-2 hover:text-blue-600 transition-colors font-semibold text-gray-700"
+                >
+                  <ExternalLink
+                    size={14}
+                    className="text-gray-400 group-hover:text-blue-600"
+                  />
+                  <span>3. QuickTrack (Expense Tracker)</span>
+                </a>
+                <p className="text-xs text-gray-400 ml-5 mt-1">
+                  Manage daily spending offline.
+                </p>
+              </li>
+            </ul>
+          </div>
+
+          {/* Column 3: Support & Contact */}
+          <div className="space-y-4">
+            <h4 className="font-bold text-gray-900 text-lg">
+              Community Support
+            </h4>
+            <p className="text-sm">
+              Need help or have a feature request? Reach out to our community
+              developer.
+            </p>
+            <div className="flex justify-center md:justify-start">
               <a
                 href={`mailto:${yourEmail}`}
-                className="text-sky-400 hover:text-sky-300 underline transition-colors"
+                className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-md shadow-blue-100 active:scale-95"
               >
-                Send Email
+                <Mail size={18} />
+                Email Support
               </a>
-            </p>
+            </div>
           </div>
-
-          {/* Links */}
-          <div>
-            <h4 className="text-sm font-semibold text-slate-200 mb-3">
-              Quick Links
-            </h4>
-            <ul className="space-y-2 text-sm">
-              <li></li>
-              <li>
-                <a
-                  href="/invoices/new"
-                  className="hover:text-sky-400 transition-colors"
-                >
-                  Create Invoice
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/invoice/history"
-                  className="hover:text-sky-400 transition-colors"
-                >
-                  History
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          {/* Legal / Contact */}
-          {/* <div>
-            <h4 className="text-sm font-semibold text-slate-200 mb-3">Legal</h4>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <a
-                  href="/p"
-                  className="hover:text-sky-400 transition-colors"
-                >
-                  Privacy Policy
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/terms"
-                  className="hover:text-sky-400 transition-colors"
-                >
-                  Terms of Service
-                </a>
-              </li>
-            </ul>
-          </div> */}
         </div>
 
-        {/* Copyright */}
-        <div className="mt-10 pt-6 border-t border-slate-700 text-center text-sm">
-          <p>&copy; {currentYear} QuickInvoice App. All rights reserved. </p>
+        {/* Bottom Section */}
+        <div className="border-t border-gray-100 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-bold uppercase tracking-widest text-gray-400">
+          <div className="flex items-center gap-2">
+            <Shield size={12} className="text-blue-500" />
+            <span>Privacy First • Local Storage • No Tracking</span>
+          </div>
+          <p>© {currentYear} Quick Community. Built for Privacy.</p>
         </div>
       </div>
     </footer>
