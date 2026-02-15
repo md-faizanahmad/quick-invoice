@@ -1,244 +1,278 @@
-Offline Expense Tracker (PWA)
+<h1 align="center">📱 Offline Expense Tracker (PWA)</h1>
 
-A mobile-first, offline-first expense tracking web app that works reliably on phones, supports IndexedDB storage, background syncing, and behaves correctly even under unstable network conditions.
+<p align="center">
+  <strong>Offline-First • Mobile-Optimized • IndexedDB-Based Architecture</strong><br/>
+  A production-focused Progressive Web App designed to work reliably under unstable network conditions.
+</p>
 
-Built to solve real-world offline problems, not demo scenarios.
+<hr/>
 
-🔑 Core Goals
+<h2>📌 Project Overview</h2>
 
-Work fully offline (add/edit/delete expenses without internet)
+<p>
+Offline Expense Tracker is a mobile-first Progressive Web Application built to handle real-world offline constraints — not demo scenarios.
+</p>
 
-Sync data reliably when online
+<ul>
+  <li>Works fully offline (Add / Edit / Delete expenses without internet)</li>
+  <li>IndexedDB as the single source of truth</li>
+  <li>Reliable background sync when connectivity is restored</li>
+  <li>Designed and tested on real mobile devices</li>
+</ul>
 
-Behave correctly on mobile + PWA, not just desktop
+<p>
+The core engineering principle: <strong>Never block the user because of the network.</strong>
+</p>
 
-Avoid UI breakage from unbounded user input
+<hr/>
 
-Keep architecture simple, debuggable, and scalable
+<h2>🎯 Core Engineering Goals</h2>
 
-🧱 Architecture Overview
-High-Level Flow
+<ul>
+  <li>True offline-first behavior</li>
+  <li>Non-blocking user interactions</li>
+  <li>Reliable mobile PWA performance</li>
+  <li>Strict input validation to prevent UI breakage</li>
+  <li>Simple, debuggable, scalable architecture</li>
+</ul>
+
+<hr/>
+
+<h2>🧱 Architecture Overview</h2>
+
+<h3>High-Level Data Flow</h3>
+
+<pre>
 UI (React Components)
-↓
+        ↓
 Local State + Events
-↓
-IndexedDB (source of truth)
-↓
+        ↓
+IndexedDB (Source of Truth)
+        ↓
 Sync Layer (NetworkOnly)
-↓
+        ↓
 Backend API (/sync)
+</pre>
 
-Key Principle
+<p>
+<strong>Design Principle:</strong><br/>
+IndexedDB owns persistence. Network sync is opportunistic and never blocks user actions.
+</p>
 
-IndexedDB is the source of truth.
-Network sync is opportunistic, never blocking user actions.
+<hr/>
 
-🗂️ Folder Structure (Relevant)
-src/
-├── components/
-│ ├── Header.tsx
-│ ├── ExpenseForm.tsx
-│ ├── ExpenseList.tsx
-│ ├── CategoryChart.tsx
-│ └── InstallPrompt.tsx
-│
-├── hooks/
-│ ├── useSync.ts
-│ ├── useOnlineStatus.ts
-│ └── useSyncStatus.ts
-│
-├── lib/
-│ ├── db/
-│ │ └── indexedDb.ts
-│ ├── api/
-│ │ └── sync.ts
-│ ├── analytics/
-│ │ └── categorySummary.ts
-│ └── validation/
-│ └── expenseValidation.ts
-│
-├── types/
-│ └── expenses.ts
-│
-├── App.tsx
-└── main.tsx
+<h2>🧠 Data & State Design</h2>
 
-🧠 Data & State Design
-Expense Model (Simplified)
+<h3>Expense Model</h3>
+
+<pre>
 type Expense = {
-id: string;
-amount: number;
-currency: string;
-category: string;
-note?: string;
-date: string;
-synced: boolean;
+  id: string;
+  amount: number;
+  currency: string;
+  category: string;
+  note?: string;
+  date: string;
+  synced: boolean;
 };
+</pre>
 
-Why This Works
+<h3>Why This Model Works</h3>
 
-synced: false → local-only data
+<ul>
+  <li><strong>synced: false</strong> → Local-only data</li>
+  <li><strong>synced: true</strong> → Confirmed by backend</li>
+  <li>No optimistic assumptions</li>
+  <li>UI always reflects real persistence state</li>
+</ul>
 
-synced: true → confirmed by backend
+<p>
+IndexedDB changes trigger:
+</p>
 
-No optimistic assumptions
-
-UI always reflects real persistence state
-
-💾 Offline Storage (IndexedDB)
-
-All CRUD operations happen locally
-
-App never blocks on network
-
-IndexedDB operations trigger a custom event:
-
+<pre>
 window.dispatchEvent(new Event("expenses-updated"));
+</pre>
 
-This keeps components decoupled without over-engineering global state.
+<p>
+This keeps UI reactive without over-engineering global state.
+</p>
 
-🔁 Sync Strategy (Critical Design Choice)
-Key Rules
+<hr/>
 
-Never block sync using navigator.onLine
+<h2>💾 Offline Storage Strategy</h2>
 
-Always attempt the network request
+<ul>
+  <li>All CRUD operations execute locally</li>
+  <li>Application never blocks on network calls</li>
+  <li>Network failures do not affect user interaction</li>
+</ul>
 
-Let fetch() decide if the network is available
+<p>
+IndexedDB is treated as storage — not global state management.
+</p>
 
-Fail → keep data pending → retry later
+<hr/>
 
-Why
+<h2>🔁 Sync Strategy (Critical Design Choice)</h2>
 
-Mobile browsers and PWAs frequently report incorrect online status.
-Relying on navigator.onLine causes false negatives on phones.
+<h3>Key Rules</h3>
 
-🌐 Service Worker Strategy (PWA-Safe)
-Problem Solved
+<ul>
+  <li>Never rely on <code>navigator.onLine</code></li>
+  <li>Always attempt network request</li>
+  <li>Let <code>fetch()</code> determine connectivity</li>
+  <li>On failure → keep data pending → retry later</li>
+</ul>
 
-Mobile PWAs aggressively cache requests and can silently swallow API calls.
+<p>
+Mobile PWAs often misreport network state.  
+Attempt-based sync avoids false negatives and silent failures.
+</p>
 
-Solution
+<hr/>
 
-/sync endpoint is explicitly NetworkOnly
+<h2>🌐 Service Worker (PWA-Safe Configuration)</h2>
 
-Absolute backend URL is matched in Workbox
+<p>
+Mobile PWAs aggressively cache requests, which can silently block API calls.
+</p>
 
-cache: "no-store" is enforced on sync requests
+<h3>Solution Implemented</h3>
 
+<ul>
+  <li><strong>/sync</strong> endpoint configured as NetworkOnly</li>
+  <li>Absolute backend URL matched in Workbox</li>
+  <li><code>cache: "no-store"</code> enforced on sync requests</li>
+</ul>
+
+<pre>
 fetch(BACKEND_URL + "/sync", {
-method: "POST",
-cache: "no-store",
-keepalive: true,
+  method: "POST",
+  cache: "no-store",
+  keepalive: true,
 });
+</pre>
 
-This guarantees:
+<p>
+Result:
+</p>
 
-Sync works on real phones
+<ul>
+  <li>No stuck pending sync states</li>
+  <li>Consistent behavior on real phones</li>
+  <li>Controlled service worker caching</li>
+</ul>
 
-No “stuck pending” state
+<hr/>
 
-Consistent behavior across environments
+<h2>✍️ Input Validation & UI Safety</h2>
 
-✍️ Input Validation & UI Safety
-Hard Limits (Non-Negotiable)
+<h3>Hard Limits Enforced</h3>
 
-Amount capped (prevents absurd values)
+<ul>
+  <li>Amount capped to prevent absurd values</li>
+  <li>Note length limited to prevent layout overflow</li>
+  <li>Category length controlled</li>
+</ul>
 
-Note length capped (prevents card overflow)
+<p>
+Validation logic is separated from UI components:
+</p>
 
-Category length controlled
-
-Validation logic is separated from UI:
-
+<pre>
 lib/validation/expenseValidation.ts
+</pre>
 
+<p>
 This keeps components clean and reusable.
+</p>
 
-📊 Lightweight Analytics (No Chart Libraries)
+<hr/>
 
+<h2>📊 Lightweight Analytics</h2>
+
+<p>
 Instead of heavy chart libraries:
+</p>
 
-Expenses are grouped by category
+<ul>
+  <li>Expenses grouped by category</li>
+  <li>Simple bar visualization</li>
+  <li>Zero chart dependencies</li>
+</ul>
 
-Simple bar visualization shows where money is spent most
+<p>
+Avoids bundle bloat and performance issues on low-end devices.
+</p>
 
-Fast, mobile-friendly, zero dependencies
+<hr/>
 
-This avoids:
+<h2>📱 Mobile-First Design Decisions</h2>
 
-Bundle bloat
+<ul>
+  <li>Large tap targets</li>
+  <li>Card-based layout</li>
+  <li>No hover-only interactions</li>
+  <li>Tested on real mobile devices</li>
+</ul>
 
-Canvas/SVG issues on low-end phones
+<hr/>
 
-📱 Mobile-First Considerations
+<h2>🚫 Intentional Non-Features</h2>
 
-Large tap targets
+<ul>
+  <li>No server-side state ownership</li>
+  <li>No blocking network calls</li>
+  <li>No reliance on unreliable online flags</li>
+  <li>No Redux / Zustand</li>
+  <li>No heavy chart libraries</li>
+</ul>
 
-Card-based layout
+<p>
+Complexity was intentionally avoided.
+</p>
 
-No hover-only interactions
+<hr/>
 
-Sync logic tested on real devices, not just DevTools
+<h2>🧪 Real-World Testing Observations</h2>
 
-🚫 What This App Intentionally Does NOT Do
+<ul>
+  <li>Desktop DevTools do not replicate PWA behavior accurately</li>
+  <li>Mobile browsers cache more aggressively</li>
+  <li>Old service workers must be manually cleared during testing</li>
+</ul>
 
-No server-side state ownership
+<hr/>
 
-No blocking network calls
+<h2>📌 Engineering Takeaways</h2>
 
-No reliance on navigator.onLine
+<ul>
+  <li>Offline-first requires optimistic UI + pessimistic sync</li>
+  <li>IndexedDB is storage, not application state</li>
+  <li>Network checks must be attempt-based</li>
+  <li>PWAs require explicit service worker control</li>
+  <li>Mobile behavior differs significantly from desktop</li>
+</ul>
 
-No heavy state libraries (Redux/Zustand)
+<hr/>
 
-No unnecessary chart frameworks
+<h2>🚀 Planned Enhancements</h2>
 
-🧪 Real-World Testing Notes
+<ul>
+  <li>Background Sync API</li>
+  <li>Exponential backoff retry strategy</li>
+  <li>Monthly analytics summary</li>
+  <li>CSV / PDF export</li>
+  <li>Budget alerts</li>
+</ul>
 
-Desktop dev tools can mask PWA issues
+<hr/>
 
-Mobile PWAs behave differently (more aggressive SW caching)
+<h2 align="center">👨‍💻 Why This Project Matters</h2>
 
-Sync logic was validated on real phones
-
-Old service workers must be cleared during testing
-
-📌 Key Engineering Takeaways (Interview-Ready)
-
-Offline-first requires optimistic UI + pessimistic sync
-
-IndexedDB is storage, not state — UI listens to events
-
-Network checks must be attempt-based, not flag-based
-
-PWAs require explicit control over Service Worker behavior
-
-Mobile browsers lie more than desktops
-
-🚀 Future Enhancements (Planned)
-
-Background Sync API
-
-Sync retry with exponential backoff
-
-Monthly summaries
-
-Export (CSV / PDF)
-
-Budget alerts
-
-🧑‍💻 Why This Project Matters
-
-This project demonstrates:
-
-Real offline engineering
-
-Mobile-aware thinking
-
-PWA pitfalls and solutions
-
-Practical trade-offs instead of tutorials
-
-This is not a demo app — it solves real constraints users face.
-
-If you want next:
+<p align="center">
+This project demonstrates real offline engineering,  
+mobile-aware architectural decisions,  
+and practical trade-offs beyond tutorial-level implementations.
+</p>
